@@ -54,6 +54,12 @@ RUN --mount=target=requirements.txt,source=requirements.txt \
 # 复制文件到工作目录
 COPY . /home/xlab-app-center
 
+# 确保脚本有可执行权限
+RUN chmod +x /home/xlab-app-center/start_server.sh
+
+# 显示权限信息用于调试
+RUN ls -l /home/xlab-app-center/start_server.sh
+
 # 设置权限
 RUN chmod +x /home/xlab-app-center/start_server.sh
 
