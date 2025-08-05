@@ -1,13 +1,7 @@
 #!/bin/bash
-# 确保脚本以root用户运行
-if [ "$(id -u)" != "0" ]; then
-    echo "This script must be run as root" >&2
-    exit 1
-fi
-
 JUPYTER_TOKEN="${JUPYTER_TOKEN:=huggingface}"
 
-echo "Starting Jupyter Lab as root with token $JUPYTER_TOKEN"
+echo "Starting Jupyter Lab with token $JUPYTER_TOKEN"
 
 # 使用Gradio规范的工作目录
 NOTEBOOK_DIR="/home/xlab-app-center"
