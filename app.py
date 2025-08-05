@@ -1,33 +1,37 @@
 import subprocess
 import os
 import signal
+import time
 
-# 捕获终止信号，确保子进程也被终止
+# 启动 Jupyter 服务
+jupyter_process = subprocess.Popen(
+    ["./start_server.sh"],
+    preexec_fn=os.setsid
+)
+
+# 启动 Gradio 界面
+import gradio as gr
+
+def dummy_function():
+    return "Jupyter Lab 正在后台运行中，请稍候..."
+
+# 等待 Jupyter 启动
+time.sleep(5)
+
+iface = gr.Interface(
+    fn=dummy_function,
+    inputs=None,
+    outputs="text",
+    title="Jupyter Lab",
+    description="系统正在启动 Jupyter Lab 服务..."
+)
+
+# 信号处理函数
 def handle_signal(signum, frame):
-    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+    os.killpg(os.getpgid(jupyter_process.pid), signal.SIGTERM)
     exit(0)
 
 signal.signal(signal.SIGTERM, handle_signal)
 signal.signal(signal.SIGINT, handle_signal)
-
-# 以root用户启动Jupyter
-process = subprocess.Popen(
-    ['sudo', '-E', './start_server.sh'],
-    preexec_fn=os.setsid  # 创建新的进程组
-)
-
-# 启动Gradio界面
-import gradio as gr
-
-def dummy_function(text):
-    return text
-
-iface = gr.Interface(
-    fn=dummy_function,
-    inputs="text",
-    outputs="text",
-    title="Jupyter Lab",
-    description="Jupyter Lab is running in the background"
-)
 
 iface.launch()
