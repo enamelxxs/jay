@@ -3,9 +3,10 @@ import os
 import signal
 import time
 
-# 启动 Jupyter 服务
+# 使用绝对路径启动 Jupyter 服务
+script_path = "/home/xlab-app-center/start_server.sh"
 jupyter_process = subprocess.Popen(
-    ["./start_server.sh"],
+    [script_path],
     preexec_fn=os.setsid
 )
 
