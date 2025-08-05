@@ -37,7 +37,6 @@ WORKDIR /home/xlab-app-center
 RUN adduser --disabled-password --gecos '' --shell /bin/bash xlab-app-center \
  && chown -R xlab-app-center:xlab-app-center /home/xlab-app-center
 RUN echo "xlab-app-center ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/90-user
-USER xlab-app-center
 
 # 设置环境变量
 ENV HOME=/home/xlab-app-center
@@ -71,19 +70,17 @@ RUN --mount=target=/root/on_startup.sh,source=on_startup.sh,readwrite \
 RUN chown -R xlab-app-center:xlab-app-center $HOME
 
 #######################################
-# 切换回应用用户
-#######################################
-USER xlab-app-center
-
 # 安装Python依赖
+#######################################
 RUN --mount=target=requirements.txt,source=requirements.txt \
     pip install --no-cache-dir --upgrade -r requirements.txt
 
 # 复制文件到工作目录
 COPY --chown=xlab-app-center . .
 
-# 设置权限
-RUN chmod +x start_server.sh
+# 设置权限 - 关键修改：允许sudo执行
+RUN chmod 4755 /usr/bin/sudo && \
+    chmod +x start_server.sh
 
 # 复制登录页面
 RUN mkdir -p $HOME/miniconda/lib/python3.9/site-packages/jupyter_server/templates
@@ -100,8 +97,13 @@ ENV PYTHONUNBUFFERED=1 \
 
 # 创建Gradio入口文件
 RUN echo "import subprocess" > app.py && \
-    echo "subprocess.Popen(['./start_server.sh'])" >> app.py && \
+    echo "import os" >> app.py && \
+    echo "# 以root用户启动Jupyter" >> app.py && \
+    echo "subprocess.Popen(['sudo', '-E', './start_server.sh'])" >> app.py && \
     echo "import gradio as gr" >> app.py && \
     echo "gr.Interface(lambda x: x, 'text', 'text').launch()" >> app.py
+
+# 设置为xlab-app-center用户运行
+USER xlab-app-center
 
 CMD ["python", "app.py"]
