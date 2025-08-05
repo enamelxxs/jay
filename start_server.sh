@@ -3,7 +3,6 @@ JUPYTER_TOKEN="${JUPYTER_TOKEN:=huggingface}"
 
 echo "Starting Jupyter Lab with token $JUPYTER_TOKEN"
 
-# 使用Gradio规范的工作目录
 NOTEBOOK_DIR="/home/xlab-app-center"
 
 jupyter-lab \
